@@ -9,24 +9,30 @@ public class WordCounter {
         Pattern regex = Pattern.compile("[a-zA-Z0-9']+");
         Matcher regexMatcher = regex.matcher(text);
 
-        if(stopword != null) {
-            throw new InvalidStopwordException ();
-
-        }
-
         if(stopword == null) {
+            throw new InvalidStopwordException ("stopword is not found");
+        }
         while (regexMatcher.find()) {
             count++;
         }
-        if(!stopwordFound) {
-            return -1;
-        }
         if (count < 5) {
-            throw new TooSmallText ()
+            throw new TooSmallText ("less the 5 words");
         }
+        return count;
     } 
+   
+    public static StringBuffer processFile (String path) throws EmptyFileException {
+        StringBuffer contents = new StringBuffer();
+        File file = new File (path);
+        try {
+            if (file.length() == 0) {
+                throw new EmptyFileException ("file is empty");
+            }
+            while (file != null) {
+                Scanner scan = new Scanner(file);
+                
+            }
 
     }
-
-
+}
 }
