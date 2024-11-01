@@ -21,18 +21,26 @@ public class WordCounter {
         return count;
     } 
    
-    public static StringBuffer processFile (String path) throws EmptyFileException {
-        StringBuffer contents = new StringBuffer();
+    public static String processFile (String path) throws EmptyFileException {
+        String contents = "";
         File file = new File (path);
         try {
             if (file.length() == 0) {
                 throw new EmptyFileException ("file is empty");
             }
-            while (file != null) {
-                Scanner scan = new Scanner(file);
-                
+            Scanner scan = new Scanner(file);
+            while (scan.hasNext()) {
+                contents += scan.next() + "";
             }
-
+            scan.close();
     }
-}
+    catch(FileNotFoundException e) {
+        System.out.println("file not found re-enter the file name");
+        Scanner input = new Scanner(System.in);
+        path = input.nextLine();
+        file = new File (path);
+    }
+    return contents;
+    }
+   
 }
