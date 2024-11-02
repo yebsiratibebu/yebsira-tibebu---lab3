@@ -7,18 +7,15 @@ import java.util.regex.Pattern;
 public class WordCounter {
     public static int processText (StringBuffer text, String stopword) throws InvalidStopwordException, TooSmallText {
         
-        if(stopword != null && stopword.length() == 0 ) {
-            throw new InvalidStopwordException ("stopword is not found");
-        }
-        if(stopword == null) {
-            return 0;
-        }
-
         Pattern regex = Pattern.compile("[a-zA-Z0-9']+");
         Matcher regexMatcher = regex.matcher(text);
         int count = 0;
         int stopwordcount = 0;
 
+        if(stopword == null || stopword.length() == 0 ) {
+            throw new InvalidStopwordException ("stopword is not found");
+        }
+        
         while (regexMatcher.find()) {
             String word = regexMatcher.group();
             //System.out.println("I just found the word: " + word);
@@ -29,10 +26,10 @@ public class WordCounter {
             }
         }
         if (stopwordcount == 0) {
-            throw new InvalidStopwordException("cannot find stopword" + stopword);
+            throw new InvalidStopwordException("Couldn't find stopword: " + stopword);
         }
         if (count < 5) {
-            throw new TooSmallText ("TooSmallText: only found" + count + "words");
+            throw new TooSmallText ("Only found 3 words.");
         }
         
         return count;
