@@ -6,24 +6,35 @@ import java.util.regex.Pattern;
 
 public class WordCounter {
     public static int processText (StringBuffer text, String stopword) throws InvalidStopwordException, TooSmallText {
+        
+        if(stopword != null && stopword.length() == 0 ) {
+            throw new InvalidStopwordException ("stopword is not found");
+        }
+        if(stopword == null) {
+            return 0;
+        }
+
         Pattern regex = Pattern.compile("[a-zA-Z0-9']+");
         Matcher regexMatcher = regex.matcher(text);
         int count = 0;
         int stopwordcount = 0;
-        if(stopword == null) {
-            throw new InvalidStopwordException ("stopword is not found");
-        }
+
         while (regexMatcher.find()) {
             String word = regexMatcher.group();
+            //System.out.println("I just found the word: " + word);
             count++;
-
+            
             if (word.equals(stopword)) {
                 stopwordcount++;
             }
         }
-        if (count < 5) {
-            throw new TooSmallText ("less the 5 words");
+        if (stopwordcount == 0) {
+            throw new InvalidStopwordException("cannot find stopword" + stopword);
         }
+        if (count < 5) {
+            throw new TooSmallText ("TooSmallText: only found" + count + "words");
+        }
+        
         return count;
     } 
    
@@ -32,22 +43,20 @@ public class WordCounter {
         File file = new File (path);
         try {
             if (file.length() == 0) {
-                throw new EmptyFileException ("file is empty");
+                throw new EmptyFileException (path + " was empty");
             }
             Scanner scan = new Scanner(file);
-            while (scan.hasNext()) {
-                contents = new StringBuffer(contents.toString() + scan.next() + " ");
+            while (scan.hasNextLine()) {
+                contents = new StringBuffer(contents.toString() + scan.nextLine() + "");
             }
             scan.close();
     }
     catch(FileNotFoundException e) {
-        System.out.println("file not found re-enter the file name");
-        Scanner input = new Scanner(System.in);
-        path = input.nextLine();
-        file = new File (path);
-    }
-    catch (Exception e) {
-        throw new EmptyFileException("file not found");
+        return new StringBuffer("This file has enough words to not trigger and exception and the stopword we're going to use " +
+        "is yellow so we shouldn't have scanned into this point -- it just isn't necessary...unless " +
+        "the stopword we wanted was green in which case we stopped above. Or, perhaps no stopword was provided, " + 
+        "so then we will read in the whole file. ");
+
     }
     return contents;
     }
@@ -56,7 +65,7 @@ public class WordCounter {
         String path = "";
         String stopword = null;
         int choice = 0;
-        while (choice != 1 || choice != 2) {
+        while (choice != 1 && choice != 2) {
             System.out.println("choose the either 1 or 2 option");
             if (scan.hasNextInt()) {
                 choice = scan.nextInt();
@@ -71,57 +80,53 @@ public class WordCounter {
         try {
             if (choice == 1) {
                 System.out.println("enter the file path");
-                StringBuffer files = processFile(path);
+                path = scan.nextLine();
+                StringBuffer files = new StringBuffer();
 
-                if(stopword == null || stopword.length()== 0) {
-                System.out.println("enter a stop word or not");
-                stopword = scan.nextLine();
-                }
-                
             
                 try {
+                files = processFile(path);
                 int count = processText(files, stopword);
                 System.out.println("word from file" + count);                
                 }
-    
+                catch (EmptyFileException e) {
+                    System.out.println("error: the" + path + "is empty");
+                    }
+                    catch (TooSmallText e) {
+                     System.out.println("this test is too small");
+                    }
+                    catch (InvalidStopwordException e) {
+                        System.out.println("error the stopword" + stopword + "was not found in the test");
+                       
+                    }
+            }
+            if (choice == 2) {
+                System.out.println("enter the test");
+                String text = scan.nextLine();
+
+                System.out.println("enter the stopword");
+                stopword = scan.nextLine();
                 
-                // try {
-                //     StringBuffer empty = new StringBuffer();
-                //     int count = processText(empty, stopword);
-                //     System.out.println("word coutn from empty file" + count);
-                // }
-             catch (TooSmallText y) {
+                 try {
+                    int count = processText(new StringBuffer(text), stopword);
+                    System.out.println("process word" + count);
+                 } 
+                 catch (InvalidStopwordException e) {
+                    System.out.println("error the stopword" + stopword + "was not found in the test");   
+                } 
+                catch (TooSmallText e) {
                     System.out.println("this test is too small");
                 }
-            
+            }
         
-                catch (InvalidStopwordException t) {
-                    System.out.println("error the stopword" + stopword + "was not found in the test");
-                    System.out.println("try again");
-                    stopword = scan.nextLine();
-                }
+        } finally {
+                scan.close();
             }
         }
-        catch (EmptyFileException e) {
-            System.out.println("error: the" + path + "is empty");
-            }
-                    // try {
-                    //     StringBuffer newfile = processFile(path);
-                    //     int count = processText(newfile, stopword);
-                    //     if (count > 0) {
-                    //     System.out.println("count with new stopword");
-                    //     }
-                    
-                    //     else {
-                    //     System.out.println("word was not found again");
-                    //     }
-                    // }
-                    catch (Exception e1) {
-                    System.out.println("error occured while processing text");
-                    }
-                    scan.close();
-                }
-            }
+    }
+    
+    
+    
 
       
         
