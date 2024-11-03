@@ -1,5 +1,9 @@
 public class TooSmallText extends Exception {
-    public TooSmallText (String message) {
-        super (message);
+    public int count;
+    public TooSmallText (int count) {
+        this.count = count;
+    }
+    public String toString() {
+        return "TooSmallText: Only found " + count + " words.";
     }
 }
