@@ -1,8 +1,4 @@
-
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.LineNumberReader;
+import java.io.*;
 import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -60,49 +56,58 @@ public class WordCounter {
    
     public static StringBuffer processFile (String path) throws EmptyFileException {
         StringBuffer contents = new StringBuffer ();
-       
+        Scanner scan = new Scanner(System.in);
+        int validfile = 0;
+        while (validfile == 0) {
+            try {
+                LineNumberReader reader = new LineNumberReader(new InputStreamReader(new FileInputStream(path)));
+                String file;
+                validfile++;
+            
+            
+                while ((file = reader.readLine()) != null) {
+                    contents.append(file);
+                    //file = reader.readLine()
+                }
+                reader.close();
 
-        try {
-            LineNumberReader reader = new LineNumberReader(new InputStreamReader(new FileInputStream(path)));
-            String file = reader.readLine();
-        
-           
-            while (file != null) {
-              contents.append(file);
-              //file = reader.readLine()
-              break;
+                if (contents.length() == 0) {
+                    throw new EmptyFileException(path);
+                }
             }
-            reader.close();
-    }
-    catch (IOException e) {
-       System.out.println("error while reading file");
-       contents = null;
-    }
-    if (contents.length() == 0) {
-        throw new EmptyFileException(path);
-    }
-   
-    return contents;
+            catch (FileNotFoundException e) {
+        
+                validfile = 0;
+                System.out.println("file not found please try again");
+                path = scan.nextLine();
+            }
+            catch (IOException e) {
+                System.out.println("failed to catch EmptyFileException");
+                contents = null;
+                throw new EmptyFileException(path);
+            }
+            scan.close();
+        }
+        return contents;
     }
     public static void main (String[] args)  {
         Scanner scan = new Scanner(System.in);
+        System.out.println("either choose 1 or 2");
         String path = args[0];
         String stopword = null;
         int choice = scan.nextInt();
         
         while (choice != 1 && choice != 2) {
             System.out.println("choose the either 1 or 2 option");
-            if (scan.hasNextInt()) {
-                choice = scan.nextInt();
-                scan.nextLine(); //clean the buffer
-            }
-            //System.out.println("choose the correct option");
-            else {
-            scan.next(); //clear invalid input
+            choice = scan.nextInt();
+             //System.out.println("choose the correct option");         
         }
-    }
+        if (args.length == 0) {
+            path = null;
+        }
         if (args.length > 1) {
             stopword = args[1];
+            path = args[0];
         }
        
             if (choice == 1) {
@@ -135,15 +140,11 @@ public class WordCounter {
                 }
             }
             if (choice == 2) {
-                System.out.println("enter the test");
-                String text = scan.nextLine();
-
-                System.out.println("enter the stopword");
-                stopword = scan.nextLine();
-                
+                String text = args[0];
+                int result = 0;
                 try {
-                    int result = processText(new StringBuffer(text), stopword);
-                    System.out.println("Found " + result + " words.");
+                    result = processText(new StringBuffer(text), stopword);
+                    
                 } 
                 catch (TooSmallText e) {
                     System.out.println(e.toString());
@@ -151,6 +152,7 @@ public class WordCounter {
                 catch (InvalidStopwordException e) {
                     System.out.println(e.toString());   
                 } 
+                System.out.println("Found " + result + " words.");
             }
             scan.close();
         } 
